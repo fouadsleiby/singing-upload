@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مسابقة غنائية - كلية تراسنطا بيت لحم</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background: linear-gradient(135deg, #4b2e83, #8e44ad);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      direction: rtl;
+    }
+    .box {
+      background: #fff;
+      width: 90%;
+      max-width: 420px;
+      padding: 28px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+    h1 { color: #4b2e83; margin-bottom: 10px; }
+    p { color: #555; }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #4b2e83;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #3a2266;
+    }
+    #status {
+      margin-top: 14px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>🎤 مسابقة غنائية</h1>
+    <p>كلية تراسنطا - بيت لحم</p>
+
+    <form id="uploadForm">
+      <input type="text" name="name" placeholder="اسم المشارك" required />
+      <input type="file" name="file" accept="video/*" required />
+      <button type="submit">رفع المشاركة</button>
+    </form>
+
+    <div id="status"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const status = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const file = formData.get("file");
+
+      if (!file || !file.type.startsWith("video/")) {
+        status.textContent = "يرجى اختيار ملف فيديو فقط.";
+        return;
+      }
+
+      if (file.size > 120 * 1024 * 1024) {
+        status.textContent = "الحد الأقصى 120 ميجا.";
+        return;
+      }
+
+      status.textContent = "جاري الرفع...";
+
+      try {
+        const res = await fetch("/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        const text = await res.text();
+        status.textContent = text;
+      } catch (err) {
+        status.textContent = "حدث خطأ أثناء الرفع.";
+      }
+    });
+  </script>
+</body>
+</html>
